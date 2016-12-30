@@ -164,6 +164,28 @@ class MainView: NSView, URLSessionDataDelegate, URLSessionDelegate, URLSessionDo
                 NSApplication.shared().terminate(self)
             }
             UpdatesController.checkForUpdate()
+			
+			
+			//Check for command line paramaters
+			if (defaults.string(forKey: "ipa") != nil) {
+				setStatus("Running from console input")
+				//Collect all the data
+				let ipaFile = defaults.string(forKey: "ipa")!
+				let ipaOutput = defaults.string(forKey: "ipaout")!
+				let certificate = defaults.string(forKey: "cert")!
+				let provisioningProfile = defaults.string(forKey: "profileloc")!
+				
+				//Select it automatically in the UI
+				CodesigningCertsPopup.selectItem(withTitle: certificate)
+				checkProfileID(ProvisioningProfile(filename: provisioningProfile))
+				outputFile = ipaOutput
+				InputFileText.stringValue = ipaFile
+				setStatus("Starting console sign!")
+				Thread.detachNewThreadSelector(Selector("signingThread"), toTarget: self, with: nil)
+				
+			}else {
+				Log.write("We're not running from the command line or the command is invalid")
+			}
         }
     }
     
