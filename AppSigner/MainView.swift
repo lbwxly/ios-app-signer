@@ -174,13 +174,23 @@ class MainView: NSView, URLSessionDataDelegate, URLSessionDelegate, URLSessionDo
 				let ipaOutput = defaults.string(forKey: "ipaout")!
 				let certificate = defaults.string(forKey: "cert")!
 				let provisioningProfile = defaults.string(forKey: "profileloc")!
-				
+                
 				//Select it automatically in the UI
 				CodesigningCertsPopup.selectItem(withTitle: certificate)
 				checkProfileID(ProvisioningProfile(filename: provisioningProfile))
 				outputFile = ipaOutput
 				InputFileText.stringValue = ipaFile
-				setStatus("Starting console sign!")
+                let newAppId = defaults.string(forKey: "newAppId");
+                if newAppId != nil {
+                    NewApplicationIDTextField.stringValue = newAppId!;
+                }
+                
+                let appName = defaults.string(forKey: "appName");
+                if appName != nil {
+                    appDisplayName.stringValue = appName!;
+                }
+				
+                setStatus("Starting console sign!")
 				Thread.detachNewThreadSelector(Selector("signingThread"), toTarget: self, with: nil)
 				
 			}else {
@@ -997,6 +1007,7 @@ class MainView: NSView, URLSessionDataDelegate, URLSessionDelegate, URLSessionDo
         //MARK: Cleanup
         cleanup(tempFolder)
         setStatus("Done, output at \(outputFile!)")
+        NSApplication.shared().terminate(self);
     }
 
     
